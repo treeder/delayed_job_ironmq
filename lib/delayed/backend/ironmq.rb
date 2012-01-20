@@ -9,16 +9,20 @@ module Delayed
   module Backend
     module Ironmq
       class Job
-
-        #include ::Mongoid::Document
-        #include ::Mongoid::Timestamps
+        include ::DelayedJobIronmq::Document
         include Delayed::Backend::Base
 
-        def initialize(data, *args)
-          #{:priority=>0, :payload_object=>#<struct TestJob text=nil, emails=nil>}
-          puts "Delayed::Backend::Ironmq - init : #{args.inspect}"
-          handler = data.delete(:payload_object)
+        def initialize(data = {}, *args)
+          puts "Delayed::Backend::Ironmq - init : #{data.inspect} | #{args.inspect}"
+
+          if data.is_a?(IronMQ::Message)
+            data = JSON.load(data.body)
+          end
+          payload_object = data.delete(:payload_object)
           @attributes = data
+          #{:priority=>0, :payload_object=>#<struct TestJob text=nil, emails=nil>}
+
+
         end
 
         def self.field(name, options = {})
@@ -54,9 +58,14 @@ module Delayed
           Time.now.utc
         end
 
-        def self.find_available(worker_name, limit = 5, max_run_time = Worker.max_run_time)
-          queue_name = "dj_ironmq"
+        #def self.find_available(worker_name, , max_run_time = Worker.max_run_time)
+        def self.reserve(worker, max_run_time = Worker.max_run_time)
+          limit = 5
+
+          queue_name = "dj_ironmq2"
+          puts "Reserve #1.1"
           messages = ironmq.messages.get(queue_name: queue_name, n: limit)
+          puts "Reserve #1.2"+messages.inspect
           return nil if messages.blank?
           messages.map do |message|
             Delayed::Backend::Ironmq::Job.new(message)
@@ -64,7 +73,7 @@ module Delayed
         end
 
         def save
-          queue_name = "dj_ironmq"
+          queue_name = "dj_ironmq2"
           payload = JSON.dump(@attributes)
           timeout = 60
           ironmq.messages.post(payload, timeout: timeout, queue_name: queue_name)
@@ -89,6 +98,10 @@ module Delayed
         private
 
         def ironmq
+          ::Delayed::Worker.ironmq
+        end
+
+        def self.ironmq
           ::Delayed::Worker.ironmq
         end
       end
