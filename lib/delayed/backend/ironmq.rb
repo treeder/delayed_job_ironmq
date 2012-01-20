@@ -13,6 +13,8 @@ module Delayed
         include Delayed::Backend::Base
 
         def initialize(data = {}, *args)
+          puts
+          puts '='*80
           puts "Delayed::Backend::Ironmq - init : #{data.inspect} | #{args.inspect}"
           @id = nil
           if data.is_a?(IronMQ::Message)
@@ -23,9 +25,12 @@ module Delayed
           @attributes = data
           self.payload_object = payload_obj
           #{:priority=>0, :payload_object=>#<struct TestJob text=nil, emails=nil>}
-          puts "\n@attributes: #{@attributes.inspect})\n"
+          puts "\n\n@attributes: #{@attributes.inspect})\n\n"
 
-
+          puts "payload_object: #{payload_object.inspect}\n\n"
+          puts "payload_object class: #{payload_object.class}\n"
+          puts '='*80
+          puts
         end
 
         def payload_object
@@ -38,8 +43,14 @@ module Delayed
 
         def payload_object=(object)
           puts "\npayload_object=(#{object.inspect})\n"
-          @payload_object = object
-          self.handler = object.to_yaml
+          if object.is_a? String
+            @payload_object = YAML.load(object)
+            self.handler = object
+          else
+            @payload_object = object
+            self.handler = object.to_yaml
+          end
+
         end
 
         def self.field(name, options = {})
@@ -77,7 +88,7 @@ module Delayed
         end
 
         def self.queue_name
-          "dj_ironmq10"
+          "dj_ironmq11"
         end
 
         def self.find_available(worker_name, limit = 5, max_run_time = Worker.max_run_time)
@@ -111,6 +122,12 @@ module Delayed
         def save!
           save
         end
+
+        def destroy
+          puts "job destroyed! #{@id.inspect}"
+          ironmq.messages.delete(@id) if @id.present?
+        end
+
 
         def update_attributes(attributes)
           puts "\nself.class.queue_name#{self.class.queue_name.inspect})\n"
