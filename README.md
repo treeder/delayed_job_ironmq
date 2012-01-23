@@ -1,16 +1,15 @@
+# delayed_job IronMQ backend
 
+## Installation
 
-
-`Gemfile`:
+Add the gems to your `Gemfile:`
 
 ```ruby
-# ...
 gem 'delayed_job'
 gem 'delayed_job_ironmq'
-# ...
 ```
 
-`config/initializers/delayed_job_config.rb`:
+And add an initializer (`config/initializers/delayed_job_config.rb`):
 
 ```ruby
 Delayed::Worker.configure do |config|
@@ -19,3 +18,6 @@ Delayed::Worker.configure do |config|
   config.queue_name = 'default' # optional
 end
 ```
+
+
+That's it. Use [delayed_job as normal](http://github.com/collectiveidea/delayed_job).

@@ -68,7 +68,6 @@ module Delayed
         end
 
         def payload_object=(object)
-          puts "\npayload_object=(#{object.inspect})\n"
           if object.is_a? String
             @payload_object = YAML.load(object)
             self.handler = object
@@ -76,7 +75,6 @@ module Delayed
             @payload_object = object
             self.handler = object.to_yaml
           end
-
         end
 
         def self.field(name, options = {})
@@ -117,34 +115,31 @@ module Delayed
           Delayed::Worker.queue_name
         end
 
+        # not used now
+        #def self.size
+        #  Delayed::Worker.ironmq.queues.get(name: queue_name).size
+        #end
+
         def queue_name
           self.class.queue_name
         end
 
         def self.find_available(worker_name, limit = 5, max_run_time = Worker.max_run_time)
-          limit = 5
-          #queue_name = "dj_ironmq6"
-          puts "Reserve #1.1 | queue_name: #{queue_name}"
           messages = ironmq.messages.get(queue_name: queue_name, n: limit)
-          puts "Reserve #1.2 | messages: #{messages.inspect}"
-          return [] if messages.blank?
+          puts "[Reserve] queue:  #{queue_name} | messages: #{messages.inspect}"
           messages.map do |message|
             Delayed::Backend::Ironmq::Job.new(message)
           end
         end
 
         def save
-          puts "\nsave()\n"
-          #self.class.queue_name = "dj_ironmq6"
-          puts "\n  id: #{@id.inspect}\n"
-          puts "\n  attributes: #{@attributes.inspect}\n"
           if @attributes['handler'].blank?
-             return false
+            raise "Handler missing!"
           end
           payload = JSON.dump(@attributes)
           timeout = 60
 
-          ironmq.messages.delete(@id) if @id.present?
+          ironmq.messages.delete(@id, queue_name: queue_name) if @id.present?
           ironmq.messages.post(payload, timeout: timeout, queue_name: queue_name)
           true
         end
@@ -155,16 +150,13 @@ module Delayed
 
         def destroy
           puts "job destroyed! #{@id.inspect}"
-          ironmq.messages.delete(@id) if @id.present?
+          ironmq.messages.delete(@id, queue_name: queue_name) if @id.present?
         end
 
 
         def update_attributes(attributes)
-          puts "\nself.class.queue_name#{queue_name.inspect})\n"
-          puts "\nupdate_attributes(#{attributes.inspect})\n"
           @attributes.merge attributes
-          puts "\n@attributes: #{@attributes.inspect})\n"
-          puts "\npayload_object: #{payload_object.inspect})\n"
+          save
         end
 
         # No need to check locks
@@ -191,10 +183,10 @@ module Delayed
           puts "Queue: #{queue_name}"
           deleted = 0
           loop do
-            msgs = ironmq.messages.get(n: 1000)
+            msgs = ironmq.messages.get(n: 1000, queue_name: queue_name)
             break if msgs.blank?
             msgs.each do |msg|
-              ironmq.messages.delete(msg.id)
+              ironmq.messages.delete(msg.id, queue_name: queue_name)
               deleted += 1
             end
           end
