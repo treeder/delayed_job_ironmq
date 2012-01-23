@@ -1,8 +1,34 @@
 # encoding: utf-8
 module Delayed
   class Worker
-    cattr_accessor :ironmq
+
+    class << self
+      attr_accessor :config, :ironmq, :queue_name
+
+      def configure()
+        yield(config)
+        if config && config.token && config.project_id
+          Delayed::Worker.ironmq = IronMQ::Client.new(
+              'token' => config.token,
+              'project_id' => config.project_id
+          )
+          self.queue_name = config.queue_name || 'default'
+        else
+          # warn user
+        end
+      end
+
+      def config
+        @config ||= IronMqConfig.new
+      end
+
+    end
   end
+end
+class IronMqConfig
+    attr_accessor :token,
+                  :project_id,
+                  :queue_name
 end
 
 module Delayed
@@ -34,7 +60,7 @@ module Delayed
         end
 
         def payload_object
-          puts "\npayload_object(): #{@attributes.inspect} | #{self.handler.inspect}\n"
+          #puts "\npayload_object(): #{@attributes.inspect} | #{self.handler.inspect}\n"
           @payload_object ||= YAML.load(self.handler)
         rescue TypeError, LoadError, NameError, ArgumentError => e
           raise DeserializationError,
@@ -88,7 +114,11 @@ module Delayed
         end
 
         def self.queue_name
-          "dj_ironmq11"
+          Delayed::Worker.queue_name
+        end
+
+        def queue_name
+          self.class.queue_name
         end
 
         def self.find_available(worker_name, limit = 5, max_run_time = Worker.max_run_time)
@@ -115,7 +145,7 @@ module Delayed
           timeout = 60
 
           ironmq.messages.delete(@id) if @id.present?
-          ironmq.messages.post(payload, timeout: timeout, queue_name: self.class.queue_name)
+          ironmq.messages.post(payload, timeout: timeout, queue_name: queue_name)
           true
         end
 
@@ -130,7 +160,7 @@ module Delayed
 
 
         def update_attributes(attributes)
-          puts "\nself.class.queue_name#{self.class.queue_name.inspect})\n"
+          puts "\nself.class.queue_name#{queue_name.inspect})\n"
           puts "\nupdate_attributes(#{attributes.inspect})\n"
           @attributes.merge attributes
           puts "\n@attributes: #{@attributes.inspect})\n"
@@ -157,8 +187,18 @@ module Delayed
           super
         end
 
-        def delete_all
-          #TODO delete_all
+        def self.delete_all
+          puts "Queue: #{queue_name}"
+          deleted = 0
+          loop do
+            msgs = ironmq.messages.get(n: 1000)
+            break if msgs.blank?
+            msgs.each do |msg|
+              ironmq.messages.delete(msg.id)
+              deleted += 1
+            end
+          end
+          puts "Messages removed: #{deleted}"
         end
 
         private
