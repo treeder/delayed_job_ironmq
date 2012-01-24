@@ -15,7 +15,13 @@ And add an initializer (`config/initializers/delayed_job_config.rb`):
 Delayed::Worker.configure do |config|
   config.token = 'XXXXXXXXXXXXXXXX'
   config.project_id = 'XXXXXXXXXXXXXXXX'
-  config.queue_name = 'default' # optional
+
+  # optional params:
+  config.queue_name = 'default' # Specify an alternative queue name
+  config.delay = 0  # Time to wait before message will be available on the queue
+  config.timeout = 5.minutes # The time in seconds to wait after message is taken off the queue, before it is put back on. Delete before :timeout to ensure it does not go back on the queue.
+  config.expires_in = 7.days # After this time, message will be automatically removed from the queue.
+ end
 end
 ```
 
