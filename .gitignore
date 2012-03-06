@@ -3,8 +3,9 @@
 .DS_Store
 *.esproj/
 .idea/
-coverage
-rdoc
-pkg
+/coverage
+/rdoc
+/pkg
 .rvmrc
 .bundle/config
+Gemfile.lock
