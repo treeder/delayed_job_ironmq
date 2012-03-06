@@ -1,5 +1,4 @@
-# delayed_job IronMQ backend
-
+This is [IronMQ](http://www.iron.io/products/mq) backend for [delayed_job](http://github.com/collectiveidea/delayed_job)
 
 # Getting Started
 
