@@ -1,5 +1,15 @@
 # delayed_job IronMQ backend
 
+
+# Getting Started
+
+## Get credentials
+
+To start using delayed_job_ironmq, you need to sign up and get an oauth token.
+
+1. Go to http://iron.io/ and sign up.
+2. Get an Oauth Token at http://hud.iron.io/tokens
+
 ## Installation
 
 Add the gems to your `Gemfile:`
@@ -26,6 +36,7 @@ Delayed::Worker.configure do |config|
 end
 ```
 
+## Usage
 
 That's it. Use [delayed_job as normal](http://github.com/collectiveidea/delayed_job).
 
@@ -40,3 +51,10 @@ end
 Delayed::Job.enqueue TestJob.new(10, 2)
 
 ```
+
+# Documentation
+
+You can find more documentation here:
+
+* http://iron.io
+* http://dev.iron.io
