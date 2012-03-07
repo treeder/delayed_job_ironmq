@@ -16,7 +16,7 @@ require 'jeweler'
 
 Jeweler::Tasks.new do |gem|
   gem.name = "delayed_job_ironmq"
-  gem.homepage = "http://www.iron.io"
+  gem.homepage = "https://github.com/thousandsofthem/delayed_job_ironmq"
   gem.description = %Q{IronMQ backend for delayed_job}
   gem.summary = %Q{IronMQ backend for delayed_job}
   gem.email = "info@iron.io"
