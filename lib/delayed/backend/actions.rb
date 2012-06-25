@@ -31,11 +31,8 @@ module Delayed
 
         def find_available(worker_name, limit = 5, max_run_time = Worker.max_run_time)
           Delayed::Worker.available_priorities.each do |priority|
-            messages = ironmq.messages.get(queue_name: queue_name(priority), n: limit)
-            jobs = messages.map do |message|
-              Delayed::Backend::Ironmq::Job.new(message)
-            end
-            return jobs if jobs.present?
+            messages = ironmq.messages.get(queue_name: queue_name(priority), n: 1)
+            return [Delayed::Backend::Ironmq::Job.new(messages[0])] if messages[0]
           end
           []
         end
