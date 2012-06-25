@@ -18,13 +18,10 @@ gem 'delayed_job'
 gem 'delayed_job_ironmq'
 ```
 
-And add an initializer (`config/initializers/delayed_job_config.rb`):
+And add an initializer (`config/initializers/delayed_job.rb`):
 
 ```ruby
 Delayed::Worker.configure do |config|
-  config.token = 'XXXXXXXXXXXXXXXX'
-  config.project_id = 'XXXXXXXXXXXXXXXX'
-
   # optional params:
   config.available_priorities = [-1,0,1,2] # Default is [0]. Please note, each new priority will speed down a bit picking job from queue
   config.queue_name = 'default' # Specify an alternative queue name
