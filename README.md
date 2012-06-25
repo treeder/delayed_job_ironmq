@@ -38,14 +38,24 @@ That's it. Use [delayed_job as normal](http://github.com/collectiveidea/delayed_
 Example:
 
 ```ruby
-class TestJob < Struct.new(:a, :b)
-  def perform
-    puts  a/b
+class User
+  def background_stuff
+    puts "I run in the background"
   end
 end
-Delayed::Job.enqueue TestJob.new(10, 2)
-
 ```
+
+Then in one of your controllers:
+
+```ruby
+user = User.new
+user.delay.bg_stuff
+```
+
+# Using with Heroku
+
+To use with Heroku, just add the [IronMQ Add-on](https://addons.heroku.com/iron_mq) and
+you're good to go.
 
 # Documentation
 
