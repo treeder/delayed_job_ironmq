@@ -31,7 +31,6 @@ Delayed::Worker.configure do |config|
   config.delay = 0  # Time to wait before message will be available on the queue
   config.timeout = 5.minutes # The time in seconds to wait after message is taken off the queue, before it is put back on. Delete before :timeout to ensure it does not go back on the queue.
   config.expires_in = 7.days # After this time, message will be automatically removed from the queue.
- end
 end
 ```
 
