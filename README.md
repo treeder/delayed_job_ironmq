@@ -18,20 +18,16 @@ gem 'delayed_job'
 gem 'delayed_job_ironmq'
 ```
 
-And add an initializer (`config/initializers/delayed_job_config.rb`):
+And add an initializer (`config/initializers/delayed_job.rb`):
 
 ```ruby
 Delayed::Worker.configure do |config|
-  config.token = 'XXXXXXXXXXXXXXXX'
-  config.project_id = 'XXXXXXXXXXXXXXXX'
-
   # optional params:
   config.available_priorities = [-1,0,1,2] # Default is [0]. Please note, each new priority will speed down a bit picking job from queue
   config.queue_name = 'default' # Specify an alternative queue name
   config.delay = 0  # Time to wait before message will be available on the queue
   config.timeout = 5.minutes # The time in seconds to wait after message is taken off the queue, before it is put back on. Delete before :timeout to ensure it does not go back on the queue.
   config.expires_in = 7.days # After this time, message will be automatically removed from the queue.
- end
 end
 ```
 
@@ -42,14 +38,24 @@ That's it. Use [delayed_job as normal](http://github.com/collectiveidea/delayed_
 Example:
 
 ```ruby
-class TestJob < Struct.new(:a, :b)
-  def perform
-    puts  a/b
+class User
+  def background_stuff
+    puts "I run in the background"
   end
 end
-Delayed::Job.enqueue TestJob.new(10, 2)
-
 ```
+
+Then in one of your controllers:
+
+```ruby
+user = User.new
+user.delay.bg_stuff
+```
+
+# Using with Heroku
+
+To use with Heroku, just add the [IronMQ Add-on](https://addons.heroku.com/iron_mq) and
+you're good to go.
 
 # Documentation
 

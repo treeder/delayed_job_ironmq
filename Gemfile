@@ -5,5 +5,5 @@ gem 'delayed_job',  '~> 3.0.0'
 
 group :development do
   gem 'rspec', '>= 2.0'
-  gem 'jeweler', '~> 1.8.3'
+  gem 'jeweler2'
 end
