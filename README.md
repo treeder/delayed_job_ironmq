@@ -52,6 +52,12 @@ user = User.new
 user.delay.bg_stuff
 ```
 
+## Start worker process
+
+    rake jobs:work
+
+That will start pulling jobs off the queue and processing them.
+
 # Using with Heroku
 
 To use with Heroku, just add the [IronMQ Add-on](https://addons.heroku.com/iron_mq) and
