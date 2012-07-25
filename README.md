@@ -11,7 +11,7 @@ To start using delayed_job_ironmq, you need to sign up for Iron.io and setup you
 
 1. Go to http://iron.io/ and sign up.
 2. Get an Oauth Token at http://hud.iron.io/tokens
-3. Add an iron.json file or setup environment variables. See http://dev.iron.io/articles/configuration/ for details.
+3. Add an iron.json file or setup environment variables for authentication. See http://dev.iron.io/articles/configuration/ for details.
 
 ## Installation
 
@@ -64,7 +64,7 @@ That will start pulling jobs off the queue and processing them.
 
 # Demo Rails Application
 
-Here's a demo rails app you can check out to see it in action: https://github.com/treeder/delayed_job_with_iron_mq
+Here's a demo rails app you can clone and try it out: https://github.com/treeder/delayed_job_with_iron_mq
 
 # Using with Heroku
 
