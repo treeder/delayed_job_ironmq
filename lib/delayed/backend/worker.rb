@@ -8,7 +8,6 @@ module Delayed
 
       def configure
         yield(config)
-        Delayed::Worker.ironmq = IronMQ::Client.new()
         self.queue_name = config.queue_name || 'default'
         self.delay = config.delay || 0
         self.timeout = config.timeout || 5.minutes
@@ -29,3 +28,8 @@ module Delayed
     end
   end
 end
+
+
+Delayed::Worker.ironmq = IronMQ::Client.new()
+# initialize with defaults
+Delayed::Worker.configure {}
