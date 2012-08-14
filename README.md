@@ -53,7 +53,7 @@ Then in one of your controllers:
 
 ```ruby
 user = User.new
-user.delay.bg_stuff
+user.delay.background_stuff
 ```
 
 ## Start worker process
